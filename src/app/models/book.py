@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -30,14 +30,8 @@ class Book(BaseModel):
     # Fallback
     raw_html: Optional[str] = Field(None, description="Raw HTML of the book page")
 
-    class Config:
-        """Pydantic configuration."""
-
-        # Serialize datetime objects
-        json_encoders = {datetime: lambda v: v.isoformat()}
-
-        # Example for documentation
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "A Light in the Attic",
                 "description": "A collection of poetry...",
@@ -53,4 +47,9 @@ class Book(BaseModel):
                 "crawl_timestamp": "2024-01-15T10:30:00",
                 "crawl_status": "success",
             }
-        }
+        },
+    )
+
+    @field_serializer("crawl_timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        return value.isoformat()
