@@ -59,7 +59,7 @@ class BookParser:
             return None
 
         desc_p = desc_header.find_next_sibling("p")
-        if desc_p:
+        if desc_p and desc_p.text.strip():
             return desc_p.text.strip()
         return None
 
