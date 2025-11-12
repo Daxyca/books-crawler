@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 class Book(BaseModel):
     name: str = Field(..., description="Book title")
-    description: Optional[str] = Field(None, description="Book description")
+    description: Optional[str] = Field(default=None, description="Book description")
     category: str = Field(..., description="Book category")
 
     currency: str = Field(..., description="Price currency")
@@ -28,7 +28,9 @@ class Book(BaseModel):
     )
 
     # Fallback
-    raw_html: Optional[str] = Field(None, description="Raw HTML of the book page")
+    raw_html: Optional[str] = Field(
+        default=None, description="Raw HTML of the book page"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
