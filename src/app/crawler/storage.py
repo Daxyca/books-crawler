@@ -7,28 +7,30 @@ from pymongo import ASCENDING, DESCENDING
 class BookStorage:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
-        self.collection = db["books"]
+        self.books_collection = db["books"]
 
     async def ensure_indexes(self):
         print("Creating database indexes...")
 
         # Unique index on source_url (prevents duplicate books)
-        await self.collection.create_index(
+        await self.books_collection.create_index(
             [("source_url", ASCENDING)], unique=True, name="source_url_unique"
         )
 
         # Indexes for query patterns
-        await self.collection.create_index(
+        await self.books_collection.create_index(
             [("category", ASCENDING)], name="category_index"
         )
-        await self.collection.create_index(
+        await self.books_collection.create_index(
             [("price_incl_tax", ASCENDING)], name="price_index"
         )
-        await self.collection.create_index(
+        await self.books_collection.create_index(
             [("num_reviews", ASCENDING)], name="reviews_index"
         )
-        await self.collection.create_index([("rating", ASCENDING)], name="rating_index")
-        await self.collection.create_index(
+        await self.books_collection.create_index(
+            [("rating", ASCENDING)], name="rating_index"
+        )
+        await self.books_collection.create_index(
             [("crawl_timestamp", DESCENDING)], name="timestamp_index"
         )
 
@@ -40,7 +42,7 @@ class BookStorage:
             book_dict = book.model_dump(exclude={"id"})
 
             # Upsert: update if exists, insert if not
-            result = await self.collection.update_one(
+            result = await self.books_collection.update_one(
                 {"source_url": book.source_url},
                 {"$set": book_dict},
                 upsert=True,
@@ -78,7 +80,7 @@ class BookStorage:
         print(f"  Errors: {stats['errors']}\n")
 
     async def get_book_by_url(self, url: str) -> Optional[Book]:
-        doc = await self.collection.find_one({"source_url": url})
+        doc = await self.books_collection.find_one({"source_url": url})
         if doc:
             # Convert MongoDB document to Pydantic model
             return Book(**doc)
@@ -86,7 +88,7 @@ class BookStorage:
 
     async def get_books(self, skip: int = 0, limit: int = 100) -> List[Book]:
         books = []
-        cursor = self.collection.find({}).skip(skip).limit(limit)
+        cursor = self.books_collection.find({}).skip(skip).limit(limit)
 
         async for doc in cursor:
             try:
@@ -111,8 +113,8 @@ class BookStorage:
         }
 
     async def count_books(self) -> int:
-        return await self.collection.count_documents({})
+        return await self.books_collection.count_documents({})
 
     async def clear_all_books(self):
-        result = await self.collection.delete_many({})
+        result = await self.books_collection.delete_many({})
         print(f"Deleted {result.deleted_count} books from database")

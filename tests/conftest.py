@@ -32,7 +32,7 @@ def mock_collection():
 def storage(mongo_client, mock_collection):
     db = mongo_client["test_books_db"]
     storage_instance = BookStorage(db)
-    storage_instance.collection = mock_collection
+    storage_instance.books_collection = mock_collection
     return storage_instance
 
 
