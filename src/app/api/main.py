@@ -15,6 +15,7 @@ from contextlib import asynccontextmanager
 from src.app.utils.db import Database
 from src.app.utils.config import get_settings
 from src.app.api.rate_limiter import limiter
+from src.app.api.routes import books
 
 
 @asynccontextmanager
@@ -33,6 +34,9 @@ app = FastAPI(
     title="Books Crawler API",
     description="""
     RESTful API for the Books Crawler project.
+    
+    This API provides access to:
+    - Books: Query, filter, and retrieve book data from books.toscrape.com
     
     Authentication:
     - All endpoints require an API key. Include it in the `X-API-Key` header.
@@ -64,6 +68,10 @@ app.add_middleware(
 )
 
 
+# Include routers
+app.include_router(books.router)
+
+
 @app.get("/", tags=["Root"])
 async def root():
     """
@@ -77,7 +85,10 @@ async def root():
         "version": "1.0.0",
         "docs": "/docs",
         "redoc": "/redoc",
-        "endpoints": {},
+        "endpoints": {
+            "books": "/books",
+            "book_by_id": "/books/{book_id}",
+        },
         "authentication": "Include X-API-Key header",
         "rate_limit": f"{settings.rate_limit_requests} requests per hour",
     }
