@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     max_retries: int = 3
     retry_delay: int = 2
 
+    # Scheduler Configuration
+    scheduler_hour: int = 2
+    scheduler_minute: int = 0
+
     # Model configuration
     model_config = SettingsConfigDict(
         env_file=".env",
