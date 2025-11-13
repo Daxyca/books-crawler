@@ -34,6 +34,9 @@ app = FastAPI(
     description="""
     RESTful API for the Books Crawler project.
     
+    Authentication:
+    - All endpoints require an API key. Include it in the `X-API-Key` header.
+    
     Rate Limiting:
     - Limit: 100 requests per hour per IP address
     - Headers: Check `X-RateLimit-Limit` and `X-RateLimit-Remaining`
@@ -75,6 +78,7 @@ async def root():
         "docs": "/docs",
         "redoc": "/redoc",
         "endpoints": {},
+        "authentication": "Include X-API-Key header",
         "rate_limit": f"{settings.rate_limit_requests} requests per hour",
     }
 
