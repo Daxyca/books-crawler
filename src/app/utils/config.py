@@ -18,6 +18,13 @@ class Settings(BaseSettings):
     scheduler_hour: int = 2
     scheduler_minute: int = 0
 
+    # API Configuration
+    api_host: str = "0.0.0.0"
+    api_port: int = 8000
+    api_key: str = "your_secret_api_key"
+    rate_limit_requests: int = 100
+    rate_limit_period: int = 3600
+
     # Model configuration
     model_config = SettingsConfigDict(
         env_file=".env",
