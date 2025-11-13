@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from src.app.utils.db import Database
 from src.app.utils.config import get_settings
 from src.app.api.rate_limiter import limiter
-from src.app.api.routes import books
+from src.app.api.routes import books, changes
 
 
 @asynccontextmanager
@@ -37,6 +37,7 @@ app = FastAPI(
     
     This API provides access to:
     - Books: Query, filter, and retrieve book data from books.toscrape.com
+    - Changes: Track and monitor changes in book data over time
     
     Authentication:
     - All endpoints require an API key. Include it in the `X-API-Key` header.
@@ -44,6 +45,9 @@ app = FastAPI(
     Rate Limiting:
     - Limit: 100 requests per hour per IP address
     - Headers: Check `X-RateLimit-Limit` and `X-RateLimit-Remaining`
+    
+    Pagination:
+    - Most endpoints support pagination with `page` and `page_size` parameters.
     """,
     version="1.0.0",
     docs_url="/docs",  # Swagger UI
@@ -70,6 +74,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(books.router)
+app.include_router(changes.router)
 
 
 @app.get("/", tags=["Root"])
@@ -88,6 +93,7 @@ async def root():
         "endpoints": {
             "books": "/books",
             "book_by_id": "/books/{book_id}",
+            "changes": "/changes",
         },
         "authentication": "Include X-API-Key header",
         "rate_limit": f"{settings.rate_limit_requests} requests per hour",
