@@ -10,20 +10,23 @@ Books Crawler is a comprehensive web crawling and monitoring system for books.to
    - [Robust Web Crawler](#robust-web-crawler)
    - [Change Detection \& Scheduling](#change-detection--scheduling)
    - [Secure RESTful API](#secure-restful-api)
-2. [Requirements](#requirements)
+1. [Requirements](#requirements)
    - [Dependencies](#dependencies)
    - [Development Dependencies](#development-dependencies)
-3. [Setup Instructions](#setup-instructions)
-4. [Usage](#usage)
+1. [Setup Instructions](#setup-instructions)
+1. [Usage](#usage)
    - [Run Basic Crawler](#run-basic-crawler)
    - [Run Scheduler with Change Detection](#run-scheduler-with-change-detection)
    - [Run API Server](#run-api-server)
-5. [API Endpoints](#api-endpoints)
+1. [API Endpoints](#api-endpoints)
    - [Books Endpoints](#books-endpoints)
      - [`GET /books`](#get-books)
      - [`GET /books/{book_id}`](#get-booksbook_id)
    - [Changes Endpoints](#changes-endpoints)
      - [`GET /changes`](#get-changes)
+1. [Sample Run Logs](#sample-run-logs)
+   - [Crawler](#crawler)
+   - [Scheduler](#scheduler)
 
 ## Features
 
@@ -227,3 +230,155 @@ Get recent changes with filtering.
 - `page_size` (int): Items per page (default: 50, max: 200)
 - `change_type` (string): Filter by type (new_book, price_change, etc.)
 - `days` (int): Changes from last N days
+
+## Sample Run Logs
+
+### Crawler
+
+```
+----------------------------------------------------------------------
+BOOKS CRAWLER - STARTING UP
+----------------------------------------------------------------------
+
+Connecting to MongoDB...
+Connected to MongoDB: books_db
+Creating database indexes...
+Indexes created successfully
+
+
+----------------------------------------------------------------------
+STARTING WEB CRAWLER
+----------------------------------------------------------------------
+Target: https://books.toscrape.com
+Max concurrent requests: 10
+Max retries per request: 3
+----------------------------------------------------------------------
+
+
+Discovering all book URLs...
+  Crawling catalogue page 1...
+    Found 20 books on page 1
+  Crawling catalogue page 2...
+    Found 20 books on page 2
+  ...
+  Crawling catalogue page 50...
+    Found 20 books on page 50
+
+Discovered 1000 total books across 50 pages
+
+Starting concurrent crawl of 1000 books...
+  (Processing 10 books at a time)
+
+----------------------------------------------------------------------
+CRAWLING STATISTICS
+----------------------------------------------------------------------
+Duration: 89.41 seconds
+Catalogue pages crawled: 50
+Books discovered: 1000
+Books successfully crawled: 1000
+Errors: 0
+Crawling rate: 11.19 books/second
+----------------------------------------------------------------------
+
+
+Saving 1000 books to database...
+Saved to database:
+  New books inserted: 1000
+  Existing books updated: 0
+  Errors: 0
+
+Total books in database: 1000
+
+Sample book:
+   Title: A Light in the Attic
+   Category: Poetry
+   Price: £51.77
+   Rating: Three
+   URL: https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html
+
+----------------------------------------------------------------------
+CRAWLER COMPLETED SUCCESSFULLY
+----------------------------------------------------------------------
+
+Closed MongoDB connection
+```
+
+### Scheduler
+
+```
+----------------------------------------------------------------------
+BOOKS CRAWLER SCHEDULER
+----------------------------------------------------------------------
+
+Connecting to MongoDB...
+Connected to MongoDB: books_db
+Default schedule: Daily at 2:00 AM UTC
+
+Scheduler started with cron: 0 2 * * *
+  Next run: 2025-11-14 02:00:00+08:00
+  Press Ctrl+C to stop
+
+Scheduler is running. Press Ctrl+C to stop.
+
+
+----------------------------------------------------------------------
+SCHEDULED CRAWL STARTED - 2025-11-13T10:00:00.011319+00:00
+----------------------------------------------------------------------
+
+
+----------------------------------------------------------------------
+STARTING WEB CRAWLER
+----------------------------------------------------------------------
+Target: https://books.toscrape.com
+Max concurrent requests: 10
+Max retries per request: 3
+----------------------------------------------------------------------
+
+
+Discovering all book URLs...
+  Crawling catalogue page 1...
+    Found 20 books on page 1
+  Crawling catalogue page 2...
+    Found 20 books on page 2
+  ...
+  Crawling catalogue page 50...
+    Found 20 books on page 50
+
+Discovered 1000 total books across 50 pages
+
+Starting concurrent crawl of 1000 books...
+  (Processing 10 books at a time)
+
+----------------------------------------------------------------------
+CRAWLING STATISTICS
+----------------------------------------------------------------------
+Duration: 90.24 seconds
+Catalogue pages crawled: 50
+Books discovered: 1000
+Books successfully crawled: 1000
+Errors: 0
+Crawling rate: 11.08 books/second
+----------------------------------------------------------------------
+
+
+Detecting changes...
+Change detection complete:
+  New books: 0
+  Updated books: 0
+  Unchanged books: 1000
+  Total changes: 0
+
+No changes detected - all data is current!
+
+----------------------------------------------------------------------
+SCHEDULED CRAWL COMPLETED - 2025-11-13T10:01:22.546212+00:00
+----------------------------------------------------------------------
+
+Default schedule: Daily at 2:00 AM UTC
+
+Scheduler started with cron: 0 2 * * *
+  Next run: 2025-11-14 02:00:00+08:00
+  Press Ctrl+C to stop
+
+Scheduler is running. Press Ctrl+C to stop.
+```
