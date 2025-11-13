@@ -1,5 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from src.app.models.book import Book
+from src.app.models.change_log import ChangeLog
 from typing import List, Optional
 from pymongo import ASCENDING, DESCENDING
 
@@ -8,6 +9,7 @@ class BookStorage:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
         self.books_collection = db["books"]
+        self.changes_collection = db["change_logs"]
 
     async def ensure_indexes(self):
         print("Creating database indexes...")
@@ -18,6 +20,7 @@ class BookStorage:
         )
 
         # Indexes for query patterns
+        # Books collection
         await self.books_collection.create_index(
             [("category", ASCENDING)], name="category_index"
         )
@@ -32,6 +35,16 @@ class BookStorage:
         )
         await self.books_collection.create_index(
             [("crawl_timestamp", DESCENDING)], name="timestamp_index"
+        )
+        # Changes collection
+        await self.changes_collection.create_index(
+            [("book_url", ASCENDING)], name="book_url_index"
+        )
+        await self.changes_collection.create_index(
+            [("change_type", ASCENDING)], name="change_type_index"
+        )
+        await self.changes_collection.create_index(
+            [("detected_at", DESCENDING)], name="detected_at_index"
         )
 
         print("Indexes created successfully\n")
@@ -118,3 +131,53 @@ class BookStorage:
     async def clear_all_books(self):
         result = await self.books_collection.delete_many({})
         print(f"Deleted {result.deleted_count} books from database")
+
+    async def log_change(self, change: ChangeLog) -> Optional[str]:
+        try:
+            change_dict = change.model_dump(exclude={"id"})
+            result = await self.changes_collection.insert_one(change_dict)
+            return str(result.inserted_id)
+        except Exception as e:
+            print(f"Error logging change: {e}")
+            return None
+
+    async def log_changes(self, changes: List[ChangeLog]) -> int:
+        if not changes:
+            return 0
+
+        try:
+            changes_dicts = [c.model_dump(exclude={"id"}) for c in changes]
+            result = await self.changes_collection.insert_many(changes_dicts)
+            return len(result.inserted_ids)
+        except Exception as e:
+            print(f"Error logging changes: {e}")
+            return 0
+
+    async def get_recent_changes(
+        self, limit: int = 100, change_type: Optional[str] = None
+    ) -> List[ChangeLog]:
+        query = {}
+        if change_type:
+            query["change_type"] = change_type
+
+        changes = []
+        cursor = (
+            self.changes_collection.find(query)
+            .sort("detected_at", DESCENDING)
+            .limit(limit)
+        )
+
+        async for doc in cursor:
+            try:
+                changes.append(ChangeLog(**doc))
+            except Exception as e:
+                print(f"Error loading change log: {e}")
+
+        return changes
+
+    async def count_changes(self, change_type: Optional[str] = None) -> int:
+        query = {}
+        if change_type:
+            query["change_type"] = change_type
+
+        return await self.changes_collection.count_documents(query)
