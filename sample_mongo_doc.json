@@ -1,0 +1,33 @@
+{
+  "_comment": "Sample MongoDB Document Structure for Books Crawler",
+
+  "books_collection": {
+    "_id": { "$oid": "69154854eda10a39bff1e5ea" },
+    "source_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+    "availability": "In stock (22 available)",
+    "category": "Poetry",
+    "crawl_status": "success",
+    "crawl_timestamp": "2025-11-13T08:54:33.361210+00:00",
+    "currency": "£",
+    "description": "It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition. Silverstein's humorous and creative verse can amuse the dowdiest of readers. Lemon-faced adults and fidgety kids sit still and read these rhythmic words and laugh and smile and love th It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition. Silverstein's humorous and creative verse can amuse the dowdiest of readers. Lemon-faced adults and fidgety kids sit still and read these rhythmic words and laugh and smile and love that Silverstein. Need proof of his genius? RockabyeRockabye baby, in the treetopDon't you know a treetopIs no safe place to rock?And who put you up there,And your cradle, too?Baby, I think someone down here'sGot it in for you. Shel, you never sounded so good. ...more",
+    "image_url": "https://books.toscrape.com/media/cache/fe/72/fe72f0532301ec28892ae79a629a293c.jpg",
+    "name": "A Light in the Attic",
+    "num_reviews": 0,
+    "price_excl_tax": 51.77,
+    "price_incl_tax": 51.77,
+    "rating": "Three",
+    "raw_html": "\n\n<!DOCTYPE html>\n...</html>\n"
+  },
+
+  "change_logs_collection": {
+    "_id": { "$oid": "69154bc26de7c7149e3539a7" },
+    "book_name": "A Light in the Attic",
+    "book_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+    "change_type": "price_change",
+    "field_name": "price_incl_tax",
+    "old_value": 51.79,
+    "new_value": 51.77,
+    "detected_at": "2025-11-13T03:08:50.590463",
+    "summary": "Price (incl tax) decreased from £51.79 to £51.77"
+  }
+}
