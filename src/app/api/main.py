@@ -8,10 +8,13 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from contextlib import asynccontextmanager
 
 from src.app.utils.db import Database
 from src.app.utils.config import get_settings
+from src.app.api.rate_limiter import limiter
 
 
 @asynccontextmanager
@@ -30,12 +33,22 @@ app = FastAPI(
     title="Books Crawler API",
     description="""
     RESTful API for the Books Crawler project.
+    
+    Rate Limiting:
+    - Limit: 100 requests per hour per IP address
+    - Headers: Check `X-RateLimit-Limit` and `X-RateLimit-Remaining`
     """,
     version="1.0.0",
     docs_url="/docs",  # Swagger UI
     redoc_url="/redoc",  # ReDoc
     lifespan=lifespan,
 )
+
+# Add rate limiter to app state
+app.state.limiter = limiter
+
+# Add rate limit exceeded handler
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
 # CORS middleware
 # In production, restrict to specific origins
@@ -55,12 +68,14 @@ async def root():
 
     Returns basic API information and links to documentation.
     """
+    settings = get_settings()
     return {
         "message": "Books Crawler API",
         "version": "1.0.0",
         "docs": "/docs",
         "redoc": "/redoc",
         "endpoints": {},
+        "rate_limit": f"{settings.rate_limit_requests} requests per hour",
     }
 
 
